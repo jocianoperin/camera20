@@ -21,7 +21,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     ImageView imageViewFoto;
-//    private Bitmap image;
+    private static Uri imageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btCompartilhar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                compartilharFoto();
+                compartilharFoto(imageUri);
             }
         });
     }
@@ -53,26 +53,27 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, 123);
     }
 
-    public void compartilharFoto(){
+    public void compartilharFoto(Uri imagePath){
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        String texto = "Olá sou um texto compartilhado";
-        sendIntent.putExtra(Intent.EXTRA_TEXT, texto);
-        sendIntent.setType("text/plain");
-        startActivity(sendIntent);
+        sendIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        sendIntent.setType("image/*");
+        sendIntent.putExtra(Intent.EXTRA_STREAM, imagePath);
+        startActivity(Intent.createChooser(sendIntent, "Share"));
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 123 && resultCode == Activity.RESULT_OK){
             //usuario tirou a foto
             Bundle extras = data.getExtras();
             Bitmap imagem = (Bitmap) extras.get("data");
 
             imageViewFoto.setImageBitmap(imagem);
-//                image = imagem;
+            imageUri = data.getData();
 
         }
-        super.onActivityResult(requestCode, resultCode, data);
+//        super.onActivityResult(requestCode, resultCode, data);
     }
 
 
